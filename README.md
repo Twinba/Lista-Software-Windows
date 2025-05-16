@@ -3,7 +3,7 @@ Questo script permette di generare un file di testo contenente una lista complet
 
 ## ⚙️ Funzionalità principali
 
-- ** 🗂️ Esportazione completa**: elenca tutti i programmi installati sui drive C: e D:
+- **🗂️ Esportazione completa**: elenca tutti i programmi installati sui drive C: e D:
   - Software a 64 bit e 32 bit
   - Programmi di terze parti 
   - App di Windows/Microsoft Store
@@ -13,9 +13,9 @@ Questo script permette di generare un file di testo contenente una lista complet
   - Editore/Publisher
   - Data di installazione (quando disponibile)
   - Percorso di installazione
-- ** 📝 Formato semplice**: file di testo (.txt) facilmente consultabile
-- ** 📅 Nome file organizzato**: include data e ora di esecuzione in formato europeo (GGMMAAAA_HHMM)
-- ** 🔌 Nessuna dipendenza**: utilizza solo componenti nativi di Windows
+- **📝 Formato semplice**: file di testo (.txt) facilmente consultabile
+- **📅 Nome file organizzato**: include data e ora di esecuzione in formato europeo (GGMMAAAA_HHMM)
+- **🔌 Nessuna dipendenza**: utilizza solo componenti nativi di Windows
 
 ## ⚠️ Limitazioni conosciute
 
