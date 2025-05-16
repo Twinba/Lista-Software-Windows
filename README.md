@@ -1,9 +1,3 @@
-## Limitazioni conosciute
-
-- Alcuni programmi installati potrebbero non avere informazioni complete nel registro di sistema
-- Programmi portatili (non installati tramite installer) potrebbero non essere rilevati
-- Lo script non può rilevare la configurazione personalizzata dei programmi# Script Esportazione Lista Software
-
 Questo script permette di generare un file di testo contenente una lista completa di tutti i programmi installati sul tuo PC, prima di procedere alla formattazione. È un utile strumento per avere un inventario dei software da reinstallare dopo aver ripristinato il sistema.
 
 ## Funzionalità principali
@@ -21,6 +15,12 @@ Questo script permette di generare un file di testo contenente una lista complet
 - **Formato semplice**: file di testo (.txt) facilmente consultabile
 - **Nome file organizzato**: include data e ora di esecuzione in formato europeo (GGMMAAAA_HHMM)
 - **Nessuna dipendenza**: utilizza solo componenti nativi di Windows
+
+## Limitazioni conosciute
+
+- Alcuni programmi installati potrebbero non avere informazioni complete nel registro di sistema
+- Programmi portatili (non installati tramite installer) potrebbero non essere rilevati
+- Lo script non può rilevare la configurazione personalizzata dei programmi# Script Esportazione Lista Software
 
 ## Guida all'utilizzo
 
