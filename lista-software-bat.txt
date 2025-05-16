@@ -1,0 +1,101 @@
+@echo off
+chcp 65001 >nul
+echo Creazione lista software in corso...
+echo.
+
+:: Crea file PowerShell temporaneo nella stessa cartella
+echo $ScriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition > "%~dp0temp_script.ps1"
+echo $dataOra = Get-Date -Format "ddMMyyyy_HHmm" >> "%~dp0temp_script.ps1"
+echo $fileName = "lista_software_$dataOra.txt" >> "%~dp0temp_script.ps1"
+echo $filePath = Join-Path -Path $ScriptPath -ChildPath $fileName >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+:: Aggiungi il codice PowerShell per la generazione della lista
+echo "LISTA DEI PROGRAMMI INSTALLATI - Generata il $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')" ^| Out-File -FilePath $filePath -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "=======================================================================" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo function Get-InstalledSoftware { >> "%~dp0temp_script.ps1"
+echo     param ( >> "%~dp0temp_script.ps1"
+echo         [string]$RegistryPath >> "%~dp0temp_script.ps1"
+echo     ) >> "%~dp0temp_script.ps1"
+echo     if (Test-Path $RegistryPath) { >> "%~dp0temp_script.ps1"
+echo         Get-ItemProperty $RegistryPath\* ^| >> "%~dp0temp_script.ps1"
+echo         Select-Object DisplayName, DisplayVersion, Publisher, InstallDate, InstallLocation ^| >> "%~dp0temp_script.ps1"
+echo         Where-Object { $_.DisplayName -ne $null } >> "%~dp0temp_script.ps1"
+echo     } >> "%~dp0temp_script.ps1"
+echo } >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo "PROGRAMMI INSTALLATI (Da registro di sistema)" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "-----------------------------------------------------------------------" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo $software = @() >> "%~dp0temp_script.ps1"
+echo $software += Get-InstalledSoftware "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall" >> "%~dp0temp_script.ps1"
+echo $software += Get-InstalledSoftware "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" >> "%~dp0temp_script.ps1"
+echo $software += Get-InstalledSoftware "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo $software = $software ^| Sort-Object DisplayName -Unique >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo foreach ($program in $software) { >> "%~dp0temp_script.ps1"
+echo     $installLocation = if ($program.InstallLocation) { $program.InstallLocation } else { "Non specificato" } >> "%~dp0temp_script.ps1"
+echo     if ($installLocation -like "C:*" -or $installLocation -like "D:*" -or $installLocation -eq "Non specificato") { >> "%~dp0temp_script.ps1"
+echo         $outputLine = "Nome: $($program.DisplayName)" >> "%~dp0temp_script.ps1"
+echo         $outputLine += "`r`nVersione: $($program.DisplayVersion)" >> "%~dp0temp_script.ps1"
+echo         $outputLine += "`r`nEditore: $($program.Publisher)" >> "%~dp0temp_script.ps1"
+echo         if ($program.InstallDate) { >> "%~dp0temp_script.ps1"
+echo             $outputLine += "`r`nData installazione: $($program.InstallDate)" >> "%~dp0temp_script.ps1"
+echo         } >> "%~dp0temp_script.ps1"
+echo         $outputLine += "`r`nPercorso installazione: $installLocation" >> "%~dp0temp_script.ps1"
+echo         $outputLine += "`r`n-----------------------------------------------------------------------" >> "%~dp0temp_script.ps1"
+echo         $outputLine ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo     } >> "%~dp0temp_script.ps1"
+echo } >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo "" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "APP MICROSOFT STORE (UWP)" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "-----------------------------------------------------------------------" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo try { >> "%~dp0temp_script.ps1"
+echo     $uwpApps = Get-AppxPackage -AllUsers ^| Sort-Object Name >> "%~dp0temp_script.ps1"
+echo     foreach ($app in $uwpApps) { >> "%~dp0temp_script.ps1"
+echo         if ($app.InstallLocation -like "C:*" -or $app.InstallLocation -like "D:*") { >> "%~dp0temp_script.ps1"
+echo             $outputLine = "Nome: $($app.Name)" >> "%~dp0temp_script.ps1"
+echo             $outputLine += "`r`nVersione: $($app.Version)" >> "%~dp0temp_script.ps1"
+echo             $outputLine += "`r`nEditore: $($app.Publisher)" >> "%~dp0temp_script.ps1"
+echo             $outputLine += "`r`nPercorso installazione: $($app.InstallLocation)" >> "%~dp0temp_script.ps1"
+echo             $outputLine += "`r`n-----------------------------------------------------------------------" >> "%~dp0temp_script.ps1"
+echo             $outputLine ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo         } >> "%~dp0temp_script.ps1"
+echo     } >> "%~dp0temp_script.ps1"
+echo } catch { >> "%~dp0temp_script.ps1"
+echo     "Impossibile recuperare le app UWP. Eseguire lo script come amministratore per informazioni complete." ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo } >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo "" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "RIEPILOGO" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "-----------------------------------------------------------------------" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "Totale programmi trovati: $($software.Count + $uwpApps.Count)" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo "File salvato in: $filePath" ^| Out-File -FilePath $filePath -Append -Encoding utf8 >> "%~dp0temp_script.ps1"
+echo. >> "%~dp0temp_script.ps1"
+
+echo Write-Host "Lista programmi completata!" -ForegroundColor Green >> "%~dp0temp_script.ps1"
+echo Write-Host "Il file è stato salvato in: $filePath" -ForegroundColor Green >> "%~dp0temp_script.ps1"
+echo Write-Host "Premi un tasto per uscire..." -ForegroundColor Yellow >> "%~dp0temp_script.ps1"
+echo $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") >> "%~dp0temp_script.ps1"
+
+:: Esegui lo script PowerShell
+powershell -ExecutionPolicy Bypass -File "%~dp0temp_script.ps1"
+
+:: Elimina il file temporaneo
+del "%~dp0temp_script.ps1"
+
+:: Pausa per visualizzare eventuali messaggi di errore
+pause
